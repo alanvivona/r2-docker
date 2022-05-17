@@ -15,14 +15,15 @@
 # $ docker build -t r2-docker:latest .
 #
 # Open binary with frida:
-# r2 frida:/home/r2/data/sample
-
+# r2 frida:///home/r2/data/sample
 
 # Using Ubuntu latest as base image.
 FROM ubuntu:latest
 
 # Label base
 LABEL r2-docker latest
+
+ARG R2_TAG=5.6.8
 
 # Build and install radare2 on master branch
 RUN DEBIAN_FRONTEND=noninteractive dpkg --add-architecture i386 && apt-get update
@@ -43,9 +44,11 @@ RUN apt-get install -y \
   sudo \
   xz-utils \
   python3-pip \
+  python-is-python3 \
   openssl \
   build-essential \
-  xxd
+  xxd \
+  wget
 
 # nodejs
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
@@ -55,8 +58,11 @@ RUN apt-get install nodejs
 # r2pipe
 RUN pip3 install r2pipe && npm install --unsafe-perm -g r2pipe
 
+# Build radare2 in a volume to minimize space used by build
+#VOLUME ["/mnt"]
+#WORKDIR /mnt
 # r2
-RUN git clone -q --depth 1 https://github.com/radare/radare2.git && \
+RUN git clone -q --depth 1 https://github.com/radare/radare2.git -b ${R2_TAG}  && \
     ./radare2/sys/install.sh
   
 # Create non-root user
