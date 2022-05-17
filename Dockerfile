@@ -42,18 +42,18 @@ RUN apt-get install -y \
   gnupg2 \
   sudo \
   xz-utils \
-  python-pip \
+  python3-pip \
   openssl \
   build-essential \
   xxd
 
 # nodejs
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get update
 RUN apt-get install nodejs
 
 # r2pipe
-RUN pip install r2pipe && npm install --unsafe-perm -g r2pipe
+RUN pip3 install r2pipe && npm install --unsafe-perm -g r2pipe
 
 # r2
 RUN git clone -q --depth 1 https://github.com/radare/radare2.git && \
