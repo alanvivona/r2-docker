@@ -66,7 +66,10 @@ RUN git clone -q --depth 1 https://github.com/radare/radare2.git -b ${R2_TAG}  &
     ./radare2/sys/install.sh
   
 # Create non-root user
-RUN useradd -m r2 && adduser r2 sudo && echo "r2:r2" | chpasswd
+RUN useradd -m r2 && adduser r2 sudo
+
+# New added for disable sudo password
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Initilise base user
 USER r2
