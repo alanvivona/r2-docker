@@ -48,7 +48,8 @@ RUN apt-get install -y \
   openssl \
   build-essential \
   xxd \
-  wget
+  wget \
+  tmux
 
 # nodejs
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
