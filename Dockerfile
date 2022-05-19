@@ -110,5 +110,6 @@ RUN apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/
 USER r2
 COPY .radare2rc /home/r2/.radare2rc
 COPY ./data /home/r2/data
+COPY .tmux.conf ${HOME}/.tmux.conf
 
 ENTRYPOINT bash
