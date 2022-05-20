@@ -17,4 +17,4 @@ Build docker image with:
 > docker build -t r2-docker:latest .
 
 Open binary with frida:
-> r2 frida:/home/r2/data/sample
+> r2 frida:///home/r2/data/sample

@@ -15,14 +15,15 @@
 # $ docker build -t r2-docker:latest .
 #
 # Open binary with frida:
-# r2 frida:/home/r2/data/sample
-
+# r2 frida:///home/r2/data/sample
 
 # Using Ubuntu latest as base image.
 FROM ubuntu:latest
 
 # Label base
 LABEL r2-docker latest
+
+ARG R2_TAG=5.6.8
 
 # Build and install radare2 on master branch
 RUN DEBIAN_FRONTEND=noninteractive dpkg --add-architecture i386 && apt-get update
@@ -42,25 +43,34 @@ RUN apt-get install -y \
   gnupg2 \
   sudo \
   xz-utils \
-  python-pip \
+  python3-pip \
+  python-is-python3 \
   openssl \
   build-essential \
-  xxd
+  xxd \
+  wget \
+  tmux
 
 # nodejs
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get update
 RUN apt-get install nodejs
 
 # r2pipe
-RUN pip install r2pipe && npm install --unsafe-perm -g r2pipe
+RUN pip3 install r2pipe && npm install --unsafe-perm -g r2pipe
 
+# Build radare2 in a volume to minimize space used by build
+#VOLUME ["/mnt"]
+#WORKDIR /mnt
 # r2
-RUN git clone -q --depth 1 https://github.com/radare/radare2.git && \
+RUN git clone -q --depth 1 https://github.com/radare/radare2.git -b ${R2_TAG}  && \
     ./radare2/sys/install.sh
   
 # Create non-root user
-RUN useradd -m r2 && adduser r2 sudo && echo "r2:r2" | chpasswd
+RUN useradd -m r2 && adduser r2 sudo
+
+# New added for disable sudo password
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Initilise base user
 USER r2
@@ -100,5 +110,6 @@ RUN apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/
 USER r2
 COPY .radare2rc /home/r2/.radare2rc
 COPY ./data /home/r2/data
+COPY .tmux.conf ${HOME}/.tmux.conf
 
 ENTRYPOINT bash
