@@ -21,9 +21,9 @@
 FROM ubuntu:latest
 
 # Label base
-LABEL r2-docker latest
+LABEL r2-docker=latest
 
-ARG R2_TAG=5.6.8
+ARG R2_TAG=5.9.8
 
 # Build and install radare2 on master branch
 RUN DEBIAN_FRONTEND=noninteractive dpkg --add-architecture i386 && apt-get update
@@ -38,15 +38,18 @@ RUN apt-get install -y \
   make \
   glib-2.0 \
   libc6:i386 \
-  libncurses5:i386 \
+  libncurses6:i386 \
   libstdc++6:i386 \
   gnupg2 \
   sudo \
   xz-utils \
   python3-pip \
+  pipx \
   python-is-python3 \
   openssl \
   build-essential \
+  ninja-build \
+  meson \
   xxd \
   wget \
   tmux
@@ -57,7 +60,7 @@ RUN apt-get update
 RUN apt-get install nodejs
 
 # r2pipe
-RUN pip3 install r2pipe && npm install --unsafe-perm -g r2pipe
+RUN pip3 install --break-system-packages r2pipe && npm install --unsafe-perm -g r2pipe
 
 # Build radare2 in a volume to minimize space used by build
 #VOLUME ["/mnt"]
@@ -75,10 +78,11 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 # Initilise base user
 USER r2
 WORKDIR /home/r2
-ENV HOME /home/r2
+ENV HOME=/home/r2
 
 # Setup r2pm
-RUN r2pm init && r2pm update && chown -R r2:r2 /home/r2/.config
+RUN r2pm -U
+# RUN r2pm -U && chown -R r2:r2 /home/r2/.config
 
 # r2dec plugin
 # command pdd
@@ -91,7 +95,7 @@ RUN r2pm init && r2pm update && chown -R r2:r2 /home/r2/.config
 #   r2dec.theme         | defines the color theme to be used on r2dec.
 #   e scr.html          | outputs html data instead of text.
 #   e scr.color         | enables syntax colors.
-RUN r2pm -ci r2dec
+RUN r2pm -i r2dec
 
 # r2frida plugin
 # Forms of use:
@@ -100,7 +104,7 @@ RUN r2pm -ci r2dec
 # $ r2 frida:///bin/ls
 # $ r2 frida://"/bin/ls -al"
 # $ r2 frida://device-id/Twitter
-RUN r2pm -ci r2frida
+RUN r2pm -i r2frida
 
 # Cleanup
 USER root
@@ -112,4 +116,4 @@ COPY .radare2rc /home/r2/.radare2rc
 COPY ./data /home/r2/data
 COPY .tmux.conf ${HOME}/.tmux.conf
 
-ENTRYPOINT bash
+ENTRYPOINT ["bash"]
