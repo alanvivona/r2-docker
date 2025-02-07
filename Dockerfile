@@ -41,6 +41,7 @@ RUN apt-get install -y \
   libncurses6:i386 \
   libstdc++6:i386 \
   gnupg2 \
+  vim \
   sudo \
   xz-utils \
   python3-pip \
@@ -52,7 +53,8 @@ RUN apt-get install -y \
   meson \
   xxd \
   wget \
-  tmux
+  tmux \
+  unzip
 
 # nodejs
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
@@ -105,6 +107,9 @@ RUN r2pm -i r2dec
 # $ r2 frida://"/bin/ls -al"
 # $ r2 frida://device-id/Twitter
 RUN r2pm -i r2frida
+
+# r2ghidra plugin
+RUN r2pm -i r2ghidra r2ghidra-sleigh 
 
 # Cleanup
 USER root
